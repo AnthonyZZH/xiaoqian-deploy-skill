@@ -6,6 +6,21 @@
 
 对媒体验证原始字节与审核状态，不把截图当作原文件。长任务测试若只 mock activation/query/recovery，只能说明契约；不能声称模型已跑完任务。官方余额 shim 的源码测试不等于认证传输或真实余额查询已验证。
 
+公开主仓在 checkout 根目录提供下列离线入口。使用 [依赖说明](dependencies-and-sources.md) 的变量。若 npm 不在 PATH，可通过已安装 Node 随附的 npm CLI 运行相同命令。
+
+```powershell
+Set-Location $Repo
+$env:XQ_TEST_PYTHON = "$Private\venv\Scripts\python.exe"
+$env:XQ_COMPAT_RPC_PATH = "$Repo\compat\driver\bridge_rpc.py"
+$env:XQ_NATIVE_PACKAGE_ROOT = "$HostRoot/node_modules/@deepseek-ai/"
+$env:XQ_TEST_NATIVE_ROOT = $env:XQ_NATIVE_PACKAGE_ROOT
+$env:DSH_PACKAGE_ROOT = $env:XQ_NATIVE_PACKAGE_ROOT
+npm run check
+npm test
+```
+
+`tests/package-distribution.test.mjs` 实际解包、导入插件并让兼容 RPC 完成模拟握手。报告实际通过、失败、跳过数；如要区分既有问题和新回归，在相同运行时及 SDK 设置下对照升级前提交。
+
 ## paused 宿主层：准备 resume
 
 检查实际进程的启动时间/路径与 release commit 一致、原生插件已加载、单控制器、driver 在正确交互 Session、目标窗口诊断可用，且无进行中的发送或未处理 unknown 被错误重放。健康 URL 取自当前部署，不扫描或开放新端口；ready 与 driver-ready 分别记录。
